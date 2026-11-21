@@ -43,6 +43,8 @@ import androidx.navigation.toRoute
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.krishiyan.KrishiYanApp
 import com.krishiyan.R
+import com.krishiyan.booking.MyRentalsScreen
+import com.krishiyan.booking.MyRentalsViewModel
 import com.krishiyan.booking.OwnerRequestsScreen
 import com.krishiyan.booking.OwnerRequestsViewModel
 import com.krishiyan.booking.RequestBookingScreen
@@ -137,7 +139,9 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                     onChooseLocation = { goToTab(HomeRoute) },
                 )
             }
-            composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
+            composable<MyRentalsRoute> {
+                MyRentalsScreen(viewModel { MyRentalsViewModel(container.bookingRepository) })
+            }
             composable<ProfileRoute> {
                 val profile = viewModel { ProfileViewModel(container.bookingRepository) }
                 val profileState by profile.state.collectAsStateWithLifecycle()
@@ -201,17 +205,6 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun PlaceholderScreen(@StringRes title: Int) {
-    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = "${stringResource(title)}\n${stringResource(R.string.coming_soon)}",
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-        )
     }
 }
 

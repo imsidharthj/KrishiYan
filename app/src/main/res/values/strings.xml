@@ -158,6 +158,30 @@
     <string name="error_booking_changed">This request was cancelled or already answered</string>
     <string name="error_booking_not_cancellable">This booking can no longer be cancelled</string>
 
+    <string name="tab_pending">Pending</string>
+    <string name="tab_confirmed">Confirmed</string>
+    <string name="tab_active">Active</string>
+    <string name="tab_past">Past</string>
+
+    <string name="empty_pending">No requests waiting. Find equipment on Home and tap Request booking</string>
+    <string name="empty_confirmed">No confirmed bookings yet</string>
+    <string name="empty_active">Nothing rented right now</string>
+    <string name="empty_past">No past rentals yet</string>
+    <string name="status_pending">Waiting for owner</string>
+    <string name="status_accepted">Accepted</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="status_cancelled">Cancelled</string>
+    <string name="status_completed">Completed</string>
+    <string name="owner_contact">Owner: %1$s, %2$s</string>
+    <string name="call">Call</string>
+    <string name="whatsapp">WhatsApp</string>
+    <string name="whatsapp_hello">Namaste, I booked your %1$s on KrishiYan.</string>
+    <string name="open_in_maps">Open location in maps</string>
+    <string name="cancel_booking">Cancel booking</string>
+    <string name="keep_booking">Keep it</string>
+    <string name="cancel_booking_title">Cancel this booking?</string>
+    <string name="cancel_booking_text">The owner of %1$s will see that you cancelled.</string>
+
     <string name="error_photo_required">Add at least one photo</string>
     <string name="error_equipment_name_required">Enter a name</string>
     <string name="error_category_required">Choose a type</string>

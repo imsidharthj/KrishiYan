@@ -84,3 +84,12 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Reject asks to confirm, then removes the card.
 - [ ] Empty list shows "No booking requests right now". Pull down reloads.
 - [ ] The accepted day is greyed out in the listing's calendar.
+
+### My rentals
+- [ ] Tabs Pending, Confirmed, Active, Past show counts; each empty tab has a clear message.
+- [ ] A new request shows under Pending as "Waiting for owner".
+- [ ] After the owner accepts (or the SQL in the step 10 notes), it moves to Confirmed with owner name and phone, Call, WhatsApp and Open location in maps.
+- [ ] Call opens the dialler with +91 number; WhatsApp opens a chat with a ready message; maps opens the exact spot.
+- [ ] During the rental it shows under Active; after the end under Past.
+- [ ] Cancel booking asks to confirm and moves it to Past as Cancelled. Not offered once an accepted rental has started.
+- [ ] Pull down reloads; opening the tab reloads.

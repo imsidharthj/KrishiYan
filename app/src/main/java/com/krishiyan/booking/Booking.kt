@@ -46,3 +46,14 @@ data class OwnerRequest(
     val renterName: String,
     val renterVillage: String,
 )
+
+/** A booking I made as a renter. */
+data class MyRental(val booking: Booking, val equipmentName: String, val photoUrl: String?)
+
+@Serializable
+data class BookingContact(
+    val lat: Double,
+    val lng: Double,
+    @SerialName("owner_name") val ownerName: String,
+    @SerialName("owner_phone") val ownerPhone: String,
+)

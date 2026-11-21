@@ -2,6 +2,9 @@ package com.krishiyan.booking
 
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.storage.storage
+import com.krishiyan.equipment.EquipmentRepository
+import kotlin.time.Duration.Companion.hours
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
@@ -49,6 +52,24 @@ class BookingRepository(private val supabase: SupabaseClient) {
                 }
             }
             .decodeList<IdRow>().size
+    }
+
+    suspend fun listMyRentals(): List<MyRental> {
+        val rows = supabase.postgrest.rpc("my_rentals").decodeList<MyRentalRow>()
+        val paths = rows.mapNotNull { it.photoPath }
+        val urls = if (paths.isEmpty()) emptyMap() else supabase.storage.from(EquipmentRepository.PHOTO_BUCKET)
+            .createSignedUrls(1.hours, paths).associate { it.path to it.signedURL }
+        return rows.map { MyRental(it.toBooking(), it.equipmentName, it.photoPath?.let(urls::get)) }
+    }
+
+    /** Exact location and owner phone. The database only returns them to the renter of an accepted booking. */
+    suspend fun getBookingContact(bookingId: String): BookingContact? =
+        supabase.postgrest.rpc("booking_contact", buildJsonObject { put("p_booking_id", bookingId) })
+            .decodeList<BookingContact>()
+            .firstOrNull()
+
+    suspend fun cancelBooking(bookingId: String) {
+        supabase.postgrest.rpc("cancel_booking", buildJsonObject { put("p_booking_id", bookingId) })
     }
 
     suspend fun acceptBooking(bookingId: String) {
@@ -100,3 +121,20 @@ private data class RenterRow(
     @SerialName("renter_village") val village: String,
     @SerialName("renter_phone") val phone: String,
 )
+
+@Serializable
+private data class MyRentalRow(
+    val id: String,
+    @SerialName("equipment_id") val equipmentId: String,
+    @SerialName("renter_id") val renterId: String,
+    @SerialName("owner_id") val ownerId: String,
+    @SerialName("start_at") val startAt: String,
+    @SerialName("end_at") val endAt: String,
+    @SerialName("estimated_cost") val estimatedCost: Double,
+    val message: String,
+    val status: String,
+    @SerialName("equipment_name") val equipmentName: String,
+    @SerialName("photo_path") val photoPath: String? = null,
+) {
+    fun toBooking() = Booking(id, equipmentId, renterId, ownerId, startAt, endAt, estimatedCost, message, status)
+}
