@@ -43,6 +43,8 @@ import androidx.navigation.toRoute
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.krishiyan.KrishiYanApp
 import com.krishiyan.R
+import com.krishiyan.booking.RequestBookingScreen
+import com.krishiyan.booking.RequestBookingViewModel
 import com.krishiyan.equipment.AddEquipmentScreen
 import com.krishiyan.equipment.AddEquipmentViewModel
 import com.krishiyan.equipment.EquipmentDetailsScreen
@@ -59,6 +61,7 @@ import kotlinx.serialization.Serializable
 @Serializable object ProfileRoute
 @Serializable object AddEquipmentRoute
 @Serializable data class EquipmentDetailsRoute(val id: String)
+@Serializable data class RequestBookingRoute(val equipmentId: String)
 
 private data class Tab(val route: Any, @StringRes val label: Int, val icon: ImageVector)
 
@@ -139,7 +142,21 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                         EquipmentDetailsViewModel(id, container.equipmentRepository, container.authRepository, container.savedLocation)
                     },
                     onBack = { navController.popBackStack() },
-                    onRequestBooking = { },
+                    onRequestBooking = { navController.navigate(RequestBookingRoute(it)) },
+                )
+            }
+            composable<RequestBookingRoute> { entry ->
+                val equipmentId = entry.toRoute<RequestBookingRoute>().equipmentId
+                val context = LocalContext.current
+                RequestBookingScreen(
+                    viewModel = viewModel {
+                        RequestBookingViewModel(equipmentId, container.equipmentRepository, container.bookingRepository)
+                    },
+                    onBack = { navController.popBackStack() },
+                    onSent = {
+                        Toast.makeText(context, R.string.request_sent, Toast.LENGTH_LONG).show()
+                        navController.popBackStack()
+                    },
                 )
             }
             composable<AddEquipmentRoute> {

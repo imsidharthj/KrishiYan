@@ -122,6 +122,30 @@
     <string name="term_location">Exact location and phone number are shared after the owner accepts.</string>
     <string name="error_equipment_gone">This equipment is no longer listed</string>
 
+    <string name="start">Start</string>
+    <string name="end">End</string>
+    <string name="pick_date">Pick date</string>
+    <string name="pick_time">Time</string>
+    <string name="estimated_cost">Estimated rent</string>
+    <string name="pick_dates_for_cost">Pick start and end to see the rent</string>
+    <plurals name="n_hours">
+        <item quantity="one">%1$d hour</item>
+        <item quantity="other">%1$d hours</item>
+    </plurals>
+    <plurals name="n_days">
+        <item quantity="one">%1$d day</item>
+        <item quantity="other">%1$d days</item>
+    </plurals>
+    <string name="message_optional">Message to owner (optional)</string>
+    <string name="message_example">For example: I need it for 2 acres of wheat</string>
+    <string name="send_request">Send request</string>
+    <string name="request_note">The owner will accept or reject. You can see the status in My rentals.</string>
+    <string name="request_sent">Request sent. The owner will reply soon</string>
+    <string name="error_pick_dates">Pick start and end</string>
+    <string name="error_end_before_start">End must be after start</string>
+    <string name="error_start_in_past">Start time has passed. Pick a later time</string>
+    <string name="error_dates_unavailable">These dates are not free. Check the calendar</string>
+
     <string name="error_photo_required">Add at least one photo</string>
     <string name="error_equipment_name_required">Enter a name</string>
     <string name="error_category_required">Choose a type</string>

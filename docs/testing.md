@@ -4,8 +4,8 @@
 
 Plain JUnit tests for pure logic only, run with `./gradlew testDebugUnitTest` (or `just test`).
 
-Done: distance calculation (`DistanceTest`).
-Planned: rental cost estimate, booking overlap check, booking status transitions.
+Done: distance calculation (`DistanceTest`), rental cost estimate (`RentalCostTest`), booking overlap check (`OverlapTest`).
+Planned: booking status transitions.
 
 ## Manual checklist
 
@@ -67,3 +67,12 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Calendar: past days grey, free days green, blocked or booked days grey with a line through. Arrows change month.
 - [ ] Rental terms are listed.
 - [ ] Someone else's listing shows Request booking; your own shows "This is your listing".
+
+### Booking request
+- [ ] Details > Request booking opens the form with the equipment name and price.
+- [ ] Picking a start date fills start and end (one hour or one day later). Today defaults to the next full hour.
+- [ ] Past days cannot be picked. End date picker starts at the start date.
+- [ ] The estimate updates live, e.g. "₹2,400, 3 hours × ₹800". 2 h 10 min on an hourly price counts as 3 hours.
+- [ ] Choosing busy days shows "These dates are not free. Check the calendar" and Send is refused.
+- [ ] Send request shows "Request sent. The owner will reply soon" and goes back to details.
+- [ ] Supabase bookings table has the new row with status pending and the same estimated cost.

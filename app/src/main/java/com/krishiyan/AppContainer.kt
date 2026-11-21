@@ -2,6 +2,7 @@ package com.krishiyan
 
 import android.content.Context
 import com.krishiyan.auth.AuthRepository
+import com.krishiyan.booking.BookingRepository
 import com.krishiyan.equipment.EquipmentRepository
 import com.krishiyan.location.LocationProvider
 import com.krishiyan.location.PlaceSearch
@@ -28,6 +29,7 @@ class AppContainer(context: Context) {
     val authRepository = AuthRepository(supabase)
     val profileRepository = ProfileRepository(supabase)
     val equipmentRepository = EquipmentRepository(supabase)
+    val bookingRepository = BookingRepository(supabase)
     val locationProvider = LocationProvider(context)
     val savedLocation = SavedLocation(context)
     val placeSearch = PlaceSearch(HttpClient(Android))
