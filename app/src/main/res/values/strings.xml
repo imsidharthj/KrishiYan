@@ -55,6 +55,7 @@
     <string name="pick_on_map">Pick on map</string>
     <string name="finding_location">Finding your location…</string>
     <string name="pick_location_hint">Move the map so the pin is on the equipment</string>
+    <string name="pick_your_place_hint">Move the map to your place</string>
     <string name="pick_location_confirm">Use this place</string>
     <string name="finding_address">Finding address…</string>
     <string name="address_unknown">Address not found. You can still use this place</string>
@@ -76,6 +77,9 @@
     <string name="category_thresher">Thresher</string>
     <string name="category_other">Other</string>
 
+    <string name="greeting">Namaste</string>
+    <string name="greeting_name">Namaste, %1$s</string>
+    <string name="greeting_hint">Find farm equipment near you</string>
     <string name="your_area">Your area</string>
     <string name="change_location">Change location</string>
     <string name="search_place">Search village or town</string>

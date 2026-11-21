@@ -36,6 +36,14 @@ fun SearchFilters(state: HomeUiState, viewModel: HomeViewModel, modifier: Modifi
             shape = MaterialTheme.shapes.medium,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         )
+        TypeAndDistanceChips(state, viewModel)
+    }
+}
+
+/** Equipment type and distance chips, shared by the Map tab and the place picker. */
+@Composable
+fun TypeAndDistanceChips(state: HomeUiState, viewModel: HomeViewModel, modifier: Modifier = Modifier) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         LazyRow(contentPadding = PaddingValues(horizontal = 16.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             item {
                 FilterChip(

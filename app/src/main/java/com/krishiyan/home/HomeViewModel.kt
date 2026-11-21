@@ -12,6 +12,7 @@ import com.krishiyan.location.LocationProvider
 import com.krishiyan.location.Place
 import com.krishiyan.location.PlaceSearch
 import com.krishiyan.location.SavedLocation
+import com.krishiyan.profile.ProfileRepository
 import com.krishiyan.ui.components.toMessage
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -21,6 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class HomeUiState(
+    val firstName: String? = null,
     val location: LatLng? = null,
     val placeName: String? = null,
     val findingLocation: Boolean = false,
@@ -43,6 +45,7 @@ class HomeViewModel(
     private val locationProvider: LocationProvider,
     private val savedLocation: SavedLocation,
     private val placeSearch: PlaceSearch,
+    private val profiles: ProfileRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeUiState(location = savedLocation.load(), placeName = savedLocation.loadName()))
     val state: StateFlow<HomeUiState> = _state
@@ -50,6 +53,10 @@ class HomeViewModel(
 
     init {
         refresh()
+        viewModelScope.launch {
+            val name = try { profiles.getMyProfile()?.name } catch (e: Exception) { null }
+            _state.update { it.copy(firstName = name?.trim()?.substringBefore(' ')) }
+        }
     }
 
     fun useCurrentLocation() {

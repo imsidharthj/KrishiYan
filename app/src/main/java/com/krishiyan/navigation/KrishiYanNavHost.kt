@@ -79,7 +79,7 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
     val container = (LocalContext.current.applicationContext as KrishiYanApp).container
     // Home and Map show the same search, so they share one ViewModel.
     val discover = viewModel {
-        HomeViewModel(container.equipmentRepository, container.locationProvider, container.savedLocation, container.placeSearch)
+        HomeViewModel(container.equipmentRepository, container.locationProvider, container.savedLocation, container.placeSearch, container.profileRepository)
     }
     val goToTab = { route: Any ->
         navController.navigate(route) {

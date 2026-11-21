@@ -20,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -63,7 +64,7 @@ fun MapScreen(viewModel: HomeViewModel, onOpenEquipment: (String) -> Unit, onCho
         return
     }
 
-    Box(Modifier.fillMaxSize()) {
+    Box(Modifier.fillMaxSize().clipToBounds()) {
         EquipmentMap(center, state.radiusKm, state.items, onMarkerClick = { selected = it }, onMapClick = { selected = null })
 
         Column(Modifier.fillMaxWidth()) {
@@ -169,7 +170,7 @@ private fun EquipmentMap(
 }
 
 /** Zoom so the whole search circle roughly fits on a phone screen. */
-private fun zoomForRadius(radiusKm: Int): Double = (15.5 - ln(radiusKm.toDouble()) / ln(2.0)).coerceIn(5.0, 16.0)
+fun zoomForRadius(radiusKm: Int): Double = (15.5 - ln(radiusKm.toDouble()) / ln(2.0)).coerceIn(5.0, 16.0)
 
 private class TapOverlay(private val onTap: () -> Unit) : org.osmdroid.views.overlay.Overlay() {
     override fun onSingleTapConfirmed(e: android.view.MotionEvent, mapView: MapView): Boolean {

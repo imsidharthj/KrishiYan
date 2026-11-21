@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -33,6 +34,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.krishiyan.R
 import com.krishiyan.map.MapCredit
+import com.krishiyan.map.zoomForRadius
 import com.krishiyan.ui.components.BigButton
 import kotlinx.coroutines.delay
 import org.osmdroid.events.MapListener
@@ -41,6 +43,7 @@ import org.osmdroid.events.ZoomEvent
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Polygon
 
 /** India's rough centre, used when we know nothing about where the user is. */
 val INDIA_CENTER = LatLng(22.5, 79.0)
@@ -57,6 +60,9 @@ fun LocationPickerDialog(
     placeSearch: PlaceSearch,
     onPicked: (Place) -> Unit,
     onDismiss: () -> Unit,
+    hint: Int = R.string.pick_location_hint,
+    radiusKm: Int? = null,
+    filters: (@Composable () -> Unit)? = null,
 ) {
     val context = LocalContext.current
     var center by remember { mutableStateOf(start ?: INDIA_CENTER) }
@@ -83,6 +89,22 @@ fun LocationPickerDialog(
         map.onResume()
         onDispose { map.onPause(); map.onDetach() }
     }
+    LaunchedEffect(center, radiusKm) {
+        map.overlays.removeAll { it is Polygon }
+        if (radiusKm != null) {
+            map.overlays.add(Polygon(map).apply {
+                points = Polygon.pointsAsCircle(GeoPoint(center.lat, center.lng), radiusKm * 1000.0)
+                fillPaint.color = 0x221B5E20
+                outlinePaint.color = 0xFF1B5E20.toInt()
+                outlinePaint.strokeWidth = 4f
+                infoWindow = null
+            })
+        }
+        map.invalidate()
+    }
+    LaunchedEffect(radiusKm) {
+        if (radiusKm != null) map.controller.setZoom(zoomForRadius(radiusKm))
+    }
     LaunchedEffect(center) {
         lookingUp = true
         delay(ADDRESS_DELAY_MS)
@@ -94,11 +116,11 @@ fun LocationPickerDialog(
         Surface(Modifier.fillMaxSize()) {
             Column(Modifier.fillMaxSize().safeDrawingPadding()) {
                 Text(
-                    stringResource(R.string.pick_location_hint),
+                    stringResource(hint),
                     style = MaterialTheme.typography.titleMedium,
                     modifier = Modifier.padding(16.dp),
                 )
-                Box(Modifier.weight(1f).fillMaxWidth()) {
+                Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
                     AndroidView(factory = { map }, modifier = Modifier.fillMaxSize())
                     MapCredit(Modifier.align(Alignment.BottomStart))
                     Icon(
@@ -108,6 +130,7 @@ fun LocationPickerDialog(
                         modifier = Modifier.align(Alignment.Center).offset(y = (-24).dp).size(48.dp),
                     )
                 }
+                filters?.let { Column(Modifier.padding(top = 12.dp)) { it() } }
                 Column(Modifier.padding(16.dp)) {
                     Column(Modifier.heightIn(min = 56.dp).padding(bottom = 8.dp)) {
                         when {

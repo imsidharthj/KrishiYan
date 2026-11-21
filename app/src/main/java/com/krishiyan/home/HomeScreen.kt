@@ -110,6 +110,9 @@ fun HomeScreen(viewModel: HomeViewModel, placeSearch: PlaceSearch, onOpenEquipme
             start = mapStart,
             placeSearch = placeSearch,
             onPicked = { viewModel.onPlaceChosen(it); showMapPicker = false },
+            hint = R.string.pick_your_place_hint,
+            radiusKm = state.radiusKm,
+            filters = { TypeAndDistanceChips(state, viewModel) },
             onDismiss = { showMapPicker = false },
         )
     }
@@ -117,7 +120,15 @@ fun HomeScreen(viewModel: HomeViewModel, placeSearch: PlaceSearch, onOpenEquipme
 
 @Composable
 private fun Header(state: HomeUiState, viewModel: HomeViewModel, onLocationClick: () -> Unit) {
-    Column(Modifier.padding(top = 8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(Modifier.padding(top = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                state.firstName?.let { stringResource(R.string.greeting_name, it) } ?: stringResource(R.string.greeting),
+                style = MaterialTheme.typography.headlineMedium,
+            )
+            Text(stringResource(R.string.greeting_hint), style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
         AssistChip(
             onClick = onLocationClick,
             label = {
