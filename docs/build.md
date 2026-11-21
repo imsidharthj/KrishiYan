@@ -32,3 +32,19 @@
 - `./gradlew assembleDebug` builds `app/build/outputs/apk/debug/app-debug.apk`.
 - `./gradlew installDebug` installs it on the connected phone.
 - `./gradlew testDebugUnitTest` runs unit tests.
+
+## Supabase setup (once per project)
+
+1. Create a free project at supabase.com (region: South Asia, Mumbai).
+2. SQL Editor: run each file in `supabase/migrations/` in number order.
+3. Authentication > Emails > SMTP Settings: Gmail SMTP (`smtp.gmail.com`, port 465, Gmail address, Gmail app password), sender name `KrishiYan`.
+4. Authentication > Emails > Templates: in **Confirm sign up** and **Magic link or OTP**, subject `Your KrishiYan login code`, body:
+   ```
+   <h2>Your KrishiYan login code</h2>
+   <p>Enter this code in the app: <strong>{{ .Token }}</strong></p>
+   ```
+5. Project Settings > API Keys: copy the publishable key into `local.properties`:
+   ```
+   SUPABASE_URL=https://<project>.supabase.co
+   SUPABASE_KEY=sb_publishable_...
+   ```

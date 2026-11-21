@@ -8,4 +8,32 @@
     <string name="tab_profile">Profile</string>
 
     <string name="coming_soon">Coming soon</string>
+    <string name="log_out">Log out</string>
+    <string name="try_again">Try again</string>
+
+    <string name="login_tagline">Rent farm equipment near you</string>
+    <string name="login_email">Email</string>
+    <string name="login_send_code">Send code</string>
+    <string name="login_code_sent">We sent a login code to %1$s</string>
+    <string name="login_code">Code from the email</string>
+    <string name="login_verify">Log in</string>
+    <string name="login_resend">Send code again</string>
+    <string name="login_change_email">Use a different email</string>
+
+    <string name="profile_setup_title">About you</string>
+    <string name="profile_setup_hint">Owners and renters see this when you book</string>
+    <string name="profile_name">Your name</string>
+    <string name="profile_phone">Mobile number</string>
+    <string name="profile_phone_hint">10 digits, used for calls and WhatsApp</string>
+    <string name="profile_village">Village or town</string>
+    <string name="profile_save">Save and continue</string>
+
+    <string name="error_no_internet">No internet. Try again</string>
+    <string name="error_generic">Something went wrong. Try again</string>
+    <string name="error_invalid_email">Enter a valid email</string>
+    <string name="error_wrong_code">Wrong or expired code</string>
+    <string name="error_too_many_tries">Too many tries. Wait a few minutes</string>
+    <string name="error_name_required">Enter your name</string>
+    <string name="error_phone_invalid">Enter a 10-digit mobile number</string>
+    <string name="error_village_required">Enter your village or town</string>
 </resources>

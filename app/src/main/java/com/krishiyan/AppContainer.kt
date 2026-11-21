@@ -1,5 +1,7 @@
 package com.krishiyan
 
+import com.krishiyan.auth.AuthRepository
+import com.krishiyan.profile.ProfileRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -15,4 +17,7 @@ class AppContainer {
         install(Postgrest)
         install(Storage)
     }
+
+    val authRepository = AuthRepository(supabase)
+    val profileRepository = ProfileRepository(supabase)
 }

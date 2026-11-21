@@ -1,7 +1,11 @@
 package com.krishiyan.navigation
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -14,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -47,7 +53,7 @@ private val tabs = listOf(
 )
 
 @Composable
-fun KrishiYanNavHost() {
+fun KrishiYanNavHost(onSignOut: () -> Unit) {
     val navController = rememberNavController()
     val backStack by navController.currentBackStackEntryAsState()
     val destination = backStack?.destination
@@ -85,7 +91,7 @@ fun KrishiYanNavHost() {
             composable<HomeRoute> { PlaceholderScreen(R.string.tab_home) }
             composable<MapRoute> { PlaceholderScreen(R.string.tab_map) }
             composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
-            composable<ProfileRoute> { PlaceholderScreen(R.string.tab_profile) }
+            composable<ProfileRoute> { ProfilePlaceholder(onSignOut) }
         }
     }
 }
@@ -98,5 +104,23 @@ private fun PlaceholderScreen(@StringRes title: Int) {
             style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
         )
+    }
+}
+
+@Composable
+private fun ProfilePlaceholder(onSignOut: () -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
+    ) {
+        Text(
+            text = "${stringResource(R.string.tab_profile)}\n${stringResource(R.string.coming_soon)}",
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        OutlinedButton(onClick = onSignOut, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            Text(stringResource(R.string.log_out), style = MaterialTheme.typography.labelLarge)
+        }
     }
 }

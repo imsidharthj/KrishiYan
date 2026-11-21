@@ -6,7 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.krishiyan.navigation.KrishiYanNavHost
+import com.krishiyan.navigation.AppRoot
 import com.krishiyan.ui.theme.KrishiYanTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,7 +18,7 @@ class MainActivity : ComponentActivity() {
         )
         setContent {
             KrishiYanTheme {
-                KrishiYanNavHost()
+                AppRoot()
             }
         }
     }
