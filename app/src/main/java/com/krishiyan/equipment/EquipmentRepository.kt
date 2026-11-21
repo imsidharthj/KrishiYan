@@ -3,6 +3,7 @@ package com.krishiyan.equipment
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
@@ -10,6 +11,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
+import java.time.Instant
 import kotlin.time.Duration.Companion.hours
 
 class EquipmentRepository(private val supabase: SupabaseClient) {
@@ -62,6 +64,35 @@ class EquipmentRepository(private val supabase: SupabaseClient) {
         val urls = signedPhotoUrls(items.mapNotNull { it.photoPath })
         return items.map { it.copy(photoUrl = it.photoPath?.let(urls::get)) }
     }
+
+    suspend fun getEquipmentDetails(id: String): EquipmentDetails? =
+        supabase.postgrest.rpc("equipment_details", buildJsonObject { put("p_equipment_id", id) })
+            .decodeList<EquipmentDetails>()
+            .firstOrNull()
+
+    /** Signed links to the equipment's photos, in the owner's order. */
+    suspend fun listEquipmentPhotos(id: String): List<String> {
+        val paths = supabase.from("equipment_images")
+            .select { filter { eq("equipment_id", id) }; order("position", Order.ASCENDING) }
+            .decodeList<PathRow>()
+            .map { it.storagePath }
+        val urls = signedPhotoUrls(paths)
+        return paths.mapNotNull(urls::get)
+    }
+
+    suspend fun listBusyRanges(id: String): List<BusyRange> =
+        supabase.postgrest.rpc("equipment_busy_ranges", buildJsonObject { put("p_equipment_id", id) })
+            .decodeList<RangeRow>()
+            .map { BusyRange(Instant.parse(it.startAt), Instant.parse(it.endAt)) }
+
+    @Serializable
+    private data class PathRow(@SerialName("storage_path") val storagePath: String)
+
+    @Serializable
+    private data class RangeRow(
+        @SerialName("start_at") val startAt: String,
+        @SerialName("end_at") val endAt: String,
+    )
 
     private suspend fun signedPhotoUrls(paths: List<String>): Map<String, String> {
         if (paths.isEmpty()) return emptyMap()

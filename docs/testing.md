@@ -4,7 +4,8 @@
 
 Plain JUnit tests for pure logic only, run with `./gradlew testDebugUnitTest` (or `just test`).
 
-Planned: distance calculation, rental cost estimate, booking overlap check, booking status transitions.
+Done: distance calculation (`DistanceTest`).
+Planned: rental cost estimate, booking overlap check, booking status transitions.
 
 ## Manual checklist
 
@@ -58,3 +59,11 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Type, search and distance change the pins. Home then shows "Showing: ..." with Clear.
 - [ ] "© OpenStreetMap contributors" shows on the Map tab and the pin picker.
 - [ ] Searching a place opens the pin picker at that place; moving the map updates the address under the pin.
+
+### Equipment details
+- [ ] Tapping a card on Home, or the card on the Map, opens the details screen.
+- [ ] Photos swipe, with a "1 / 3" counter when there are several.
+- [ ] Shows type, name, price, owner first name and village, "About x km away", brand and year, description.
+- [ ] Calendar: past days grey, free days green, blocked or booked days grey with a line through. Arrows change month.
+- [ ] Rental terms are listed.
+- [ ] Someone else's listing shows Request booking; your own shows "This is your listing".

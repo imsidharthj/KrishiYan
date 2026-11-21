@@ -39,11 +39,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.krishiyan.KrishiYanApp
 import com.krishiyan.R
 import com.krishiyan.equipment.AddEquipmentScreen
 import com.krishiyan.equipment.AddEquipmentViewModel
+import com.krishiyan.equipment.EquipmentDetailsScreen
+import com.krishiyan.equipment.EquipmentDetailsViewModel
 import com.krishiyan.home.HomeScreen
 import com.krishiyan.home.HomeViewModel
 import com.krishiyan.map.MapScreen
@@ -55,6 +58,7 @@ import kotlinx.serialization.Serializable
 @Serializable object MyRentalsRoute
 @Serializable object ProfileRoute
 @Serializable object AddEquipmentRoute
+@Serializable data class EquipmentDetailsRoute(val id: String)
 
 private data class Tab(val route: Any, @StringRes val label: Int, val icon: ImageVector)
 
@@ -111,14 +115,32 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
             modifier = Modifier.padding(padding),
         ) {
             composable<HomeRoute> {
-                HomeScreen(viewModel = discover, placeSearch = container.placeSearch, onOpenEquipment = { })
+                HomeScreen(
+                    viewModel = discover,
+                    placeSearch = container.placeSearch,
+                    onOpenEquipment = { navController.navigate(EquipmentDetailsRoute(it)) },
+                )
             }
             composable<MapRoute> {
-                MapScreen(viewModel = discover, onOpenEquipment = { }, onChooseLocation = { goToTab(HomeRoute) })
+                MapScreen(
+                    viewModel = discover,
+                    onOpenEquipment = { navController.navigate(EquipmentDetailsRoute(it)) },
+                    onChooseLocation = { goToTab(HomeRoute) },
+                )
             }
             composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
             composable<ProfileRoute> {
                 ProfilePlaceholder(onAddEquipment = { navController.navigate(AddEquipmentRoute) }, onSignOut = onSignOut)
+            }
+            composable<EquipmentDetailsRoute> { entry ->
+                val id = entry.toRoute<EquipmentDetailsRoute>().id
+                EquipmentDetailsScreen(
+                    viewModel = viewModel {
+                        EquipmentDetailsViewModel(id, container.equipmentRepository, container.authRepository, container.savedLocation)
+                    },
+                    onBack = { navController.popBackStack() },
+                    onRequestBooking = { },
+                )
             }
             composable<AddEquipmentRoute> {
                 val context = LocalContext.current

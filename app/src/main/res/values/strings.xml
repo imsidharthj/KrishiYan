@@ -102,6 +102,22 @@
     <string name="no_equipment_nearby">No equipment near you yet</string>
     <string name="no_equipment_nearby_hint">Try a bigger distance</string>
 
+    <string name="request_booking">Request booking</string>
+    <string name="this_is_your_listing">This is your listing</string>
+    <string name="owner_from">%1$s, %2$s</string>
+    <string name="about_km_away">About %1$d km away</string>
+    <string name="made_in_year">Made in %1$d</string>
+    <string name="previous_month">Previous month</string>
+    <string name="next_month">Next month</string>
+    <string name="calendar_free">Free</string>
+    <string name="calendar_busy">Busy</string>
+    <string name="rental_terms">Rental terms</string>
+    <string name="term_owner_accepts">The owner must accept your request before it is confirmed.</string>
+    <string name="term_pay_owner">Pay the owner directly. KrishiYan does not take payment.</string>
+    <string name="term_cancel">You can cancel before the rental starts.</string>
+    <string name="term_location">Exact location and phone number are shared after the owner accepts.</string>
+    <string name="error_equipment_gone">This equipment is no longer listed</string>
+
     <string name="error_photo_required">Add at least one photo</string>
     <string name="error_equipment_name_required">Enter a name</string>
     <string name="error_category_required">Choose a type</string>

@@ -20,6 +20,7 @@ private val colors = lightColorScheme(
     surface = OffWhite,
     onSurface = Charcoal,
     surfaceContainer = Color.White,
+    surfaceVariant = LightGrey,
     onSurfaceVariant = MutedGrey,
     error = ErrorRed,
 )
