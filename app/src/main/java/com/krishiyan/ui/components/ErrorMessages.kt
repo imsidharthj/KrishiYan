@@ -11,8 +11,10 @@ import java.io.IOException
 @StringRes
 fun Throwable.toMessage(): Int = when (this) {
     is HttpRequestException, is IOException, is ConnectTimeoutException -> R.string.error_no_internet
-    is RestException if (message ?: "").contains("dates_unavailable") || (message ?: "").contains("dates_already_booked") ->
-        R.string.error_dates_unavailable
+    is RestException if (message ?: "").contains("dates_already_booked") -> R.string.error_already_booked
+    is RestException if (message ?: "").contains("dates_unavailable") -> R.string.error_dates_unavailable
+    is RestException if (message ?: "").contains("booking_not_pending") -> R.string.error_booking_changed
+    is RestException if (message ?: "").contains("booking_not_cancellable") -> R.string.error_booking_not_cancellable
     is RestException if (message ?: "").contains("start_in_past") -> R.string.error_start_in_past
     is AuthRestException -> when {
         statusCode == 429 -> R.string.error_too_many_tries

@@ -4,8 +4,7 @@
 
 Plain JUnit tests for pure logic only, run with `./gradlew testDebugUnitTest` (or `just test`).
 
-Done: distance calculation (`DistanceTest`), rental cost estimate (`RentalCostTest`), booking overlap check (`OverlapTest`).
-Planned: booking status transitions.
+Done: distance calculation (`DistanceTest`), rental cost estimate (`RentalCostTest`), booking overlap check (`OverlapTest`), booking status transitions (`BookingStatusTest`).
 
 ## Manual checklist
 
@@ -76,3 +75,12 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Choosing busy days shows "These dates are not free. Check the calendar" and Send is refused.
 - [ ] Send request shows "Request sent. The owner will reply soon" and goes back to details.
 - [ ] Supabase bookings table has the new row with status pending and the same estimated cost.
+
+### Owner requests
+- [ ] Run `supabase/seed/demo_requests.sql` to get two overlapping requests per listing you own.
+- [ ] Profile shows "Booking requests (n)".
+- [ ] Each request shows equipment, renter name and village, dates, rent and message.
+- [ ] Accept removes the card. Accepting the overlapping one shows "You already accepted another booking for these dates".
+- [ ] Reject asks to confirm, then removes the card.
+- [ ] Empty list shows "No booking requests right now". Pull down reloads.
+- [ ] The accepted day is greyed out in the listing's calendar.

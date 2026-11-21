@@ -43,6 +43,8 @@ import androidx.navigation.toRoute
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.krishiyan.KrishiYanApp
 import com.krishiyan.R
+import com.krishiyan.booking.OwnerRequestsScreen
+import com.krishiyan.booking.OwnerRequestsViewModel
 import com.krishiyan.booking.RequestBookingScreen
 import com.krishiyan.booking.RequestBookingViewModel
 import com.krishiyan.equipment.AddEquipmentScreen
@@ -52,7 +54,10 @@ import com.krishiyan.equipment.EquipmentDetailsViewModel
 import com.krishiyan.home.HomeScreen
 import com.krishiyan.home.HomeViewModel
 import com.krishiyan.map.MapScreen
+import com.krishiyan.profile.ProfileViewModel
 import com.krishiyan.ui.components.BigButton
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.serialization.Serializable
 
 @Serializable object HomeRoute
@@ -62,6 +67,7 @@ import kotlinx.serialization.Serializable
 @Serializable object AddEquipmentRoute
 @Serializable data class EquipmentDetailsRoute(val id: String)
 @Serializable data class RequestBookingRoute(val equipmentId: String)
+@Serializable object OwnerRequestsRoute
 
 private data class Tab(val route: Any, @StringRes val label: Int, val icon: ImageVector)
 
@@ -133,7 +139,18 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
             }
             composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
             composable<ProfileRoute> {
-                ProfilePlaceholder(onAddEquipment = { navController.navigate(AddEquipmentRoute) }, onSignOut = onSignOut)
+                val profile = viewModel { ProfileViewModel(container.bookingRepository) }
+                val profileState by profile.state.collectAsStateWithLifecycle()
+                LifecycleResumeEffect(Unit) {
+                    profile.refresh()
+                    onPauseOrDispose { }
+                }
+                ProfilePlaceholder(
+                    pendingRequests = profileState.pendingRequests,
+                    onOpenRequests = { navController.navigate(OwnerRequestsRoute) },
+                    onAddEquipment = { navController.navigate(AddEquipmentRoute) },
+                    onSignOut = onSignOut,
+                )
             }
             composable<EquipmentDetailsRoute> { entry ->
                 val id = entry.toRoute<EquipmentDetailsRoute>().id
@@ -157,6 +174,12 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                         Toast.makeText(context, R.string.request_sent, Toast.LENGTH_LONG).show()
                         navController.popBackStack()
                     },
+                )
+            }
+            composable<OwnerRequestsRoute> {
+                OwnerRequestsScreen(
+                    viewModel = viewModel { OwnerRequestsViewModel(container.bookingRepository) },
+                    onBack = { navController.popBackStack() },
                 )
             }
             composable<AddEquipmentRoute> {
@@ -193,7 +216,12 @@ private fun PlaceholderScreen(@StringRes title: Int) {
 }
 
 @Composable
-private fun ProfilePlaceholder(onAddEquipment: () -> Unit, onSignOut: () -> Unit) {
+private fun ProfilePlaceholder(
+    pendingRequests: Int,
+    onOpenRequests: () -> Unit,
+    onAddEquipment: () -> Unit,
+    onSignOut: () -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
@@ -204,6 +232,13 @@ private fun ProfilePlaceholder(onAddEquipment: () -> Unit, onSignOut: () -> Unit
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
+        OutlinedButton(onClick = onOpenRequests, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
+            Text(
+                if (pendingRequests > 0) stringResource(R.string.booking_requests_count, pendingRequests)
+                else stringResource(R.string.booking_requests),
+                style = MaterialTheme.typography.labelLarge,
+            )
+        }
         BigButton(stringResource(R.string.add_equipment), onAddEquipment)
         OutlinedButton(onClick = onSignOut, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
             Text(stringResource(R.string.log_out), style = MaterialTheme.typography.labelLarge)
