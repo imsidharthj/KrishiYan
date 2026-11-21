@@ -44,6 +44,8 @@ import com.krishiyan.KrishiYanApp
 import com.krishiyan.R
 import com.krishiyan.equipment.AddEquipmentScreen
 import com.krishiyan.equipment.AddEquipmentViewModel
+import com.krishiyan.home.HomeScreen
+import com.krishiyan.home.HomeViewModel
 import com.krishiyan.ui.components.BigButton
 import kotlinx.serialization.Serializable
 
@@ -101,7 +103,16 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
             startDestination = HomeRoute,
             modifier = Modifier.padding(padding),
         ) {
-            composable<HomeRoute> { PlaceholderScreen(R.string.tab_home) }
+            composable<HomeRoute> {
+                val container = (LocalContext.current.applicationContext as KrishiYanApp).container
+                HomeScreen(
+                    viewModel = viewModel {
+                        HomeViewModel(container.equipmentRepository, container.locationProvider, container.savedLocation)
+                    },
+                    placeSearch = container.placeSearch,
+                    onOpenEquipment = { },
+                )
+            }
             composable<MapRoute> { PlaceholderScreen(R.string.tab_map) }
             composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
             composable<ProfileRoute> {

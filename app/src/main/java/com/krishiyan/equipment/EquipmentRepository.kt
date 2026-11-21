@@ -3,10 +3,14 @@ package com.krishiyan.equipment
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
 import io.ktor.http.ContentType
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlin.time.Duration.Companion.hours
 
 class EquipmentRepository(private val supabase: SupabaseClient) {
 
@@ -36,6 +40,34 @@ class EquipmentRepository(private val supabase: SupabaseClient) {
             throw e
         }
         return id
+    }
+
+    suspend fun listNearbyEquipment(
+        lat: Double,
+        lng: Double,
+        radiusKm: Int,
+        category: Category?,
+        query: String?,
+    ): List<NearbyEquipment> {
+        val items = supabase.postgrest.rpc(
+            "nearby_equipment",
+            buildJsonObject {
+                put("p_lat", lat)
+                put("p_lng", lng)
+                put("p_radius_km", radiusKm)
+                put("p_category", category?.dbValue)
+                put("p_query", query?.takeIf { it.isNotBlank() })
+            },
+        ).decodeList<NearbyEquipment>()
+        val urls = signedPhotoUrls(items.mapNotNull { it.photoPath })
+        return items.map { it.copy(photoUrl = it.photoPath?.let(urls::get)) }
+    }
+
+    private suspend fun signedPhotoUrls(paths: List<String>): Map<String, String> {
+        if (paths.isEmpty()) return emptyMap()
+        return supabase.storage.from(PHOTO_BUCKET)
+            .createSignedUrls(PHOTO_LINK_LIFETIME, paths)
+            .associate { it.path to it.signedURL }
     }
 
     @Serializable
@@ -78,5 +110,6 @@ class EquipmentRepository(private val supabase: SupabaseClient) {
 
     companion object {
         const val PHOTO_BUCKET = "equipment-photos"
+        private val PHOTO_LINK_LIFETIME = 1.hours
     }
 }

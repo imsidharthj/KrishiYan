@@ -73,6 +73,25 @@
     <string name="category_thresher">Thresher</string>
     <string name="category_other">Other</string>
 
+    <string name="your_area">Your area</string>
+    <string name="change_location">Change location</string>
+    <string name="search_place">Search village or town</string>
+    <string name="search_place_hint">Village or town name</string>
+    <string name="searching">Searching…</string>
+    <string name="no_places_found">No place found. Check the spelling</string>
+    <string name="where_are_you">Where are you?</string>
+    <string name="where_are_you_hint">We show equipment near this place</string>
+    <string name="search_hint">Search tractor, sprayer…</string>
+    <string name="all">All</string>
+    <string name="within">Within</string>
+    <string name="km">%1$d km</string>
+    <string name="km_away">%1$d km away</string>
+    <string name="price_per_hour_value">%1$s / hour</string>
+    <string name="price_per_day_value">%1$s / day</string>
+    <string name="busy_now">Busy now</string>
+    <string name="no_equipment_nearby">No equipment near you yet</string>
+    <string name="no_equipment_nearby_hint">Try a bigger distance</string>
+
     <string name="error_photo_required">Add at least one photo</string>
     <string name="error_equipment_name_required">Enter a name</string>
     <string name="error_category_required">Choose a type</string>

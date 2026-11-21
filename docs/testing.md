@@ -37,3 +37,16 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Not available on some days: adding a date range shows a chip; tapping it removes it.
 - [ ] Publish shows "Equipment published" and returns to Profile.
 - [ ] Supabase has the row in equipment, its photos in equipment_images and Storage, and blocked dates if added.
+
+### Home
+- [ ] With no saved place, Home asks "Where are you?" with My location and Search village or town.
+- [ ] My location shows nearby equipment and the town name on the chip.
+- [ ] Location chip > type 3 letters shows place suggestions; picking one reloads the list and the chip shows its name.
+- [ ] Nonsense text shows "No place found. Check the spelling".
+- [ ] Pick on map still works.
+- [ ] Each card shows photo, name, "x km away", price per hour or day, and Available now or Busy now.
+- [ ] Search text, category chips and 5/10/25/50 km chips each reload the list.
+- [ ] A far place shows "No equipment near you yet".
+- [ ] Pull down reloads.
+- [ ] Airplane mode shows "No internet. Try again"; Try again works once back online.
+- [ ] Reopening the app keeps the last place.
