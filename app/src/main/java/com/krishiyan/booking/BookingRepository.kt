@@ -42,6 +42,18 @@ class BookingRepository(private val supabase: SupabaseClient) {
         }.awaitAll()
     }
 
+    /** Every booking on my equipment, newest first, for the dashboard counts and rental history. */
+    suspend fun listOwnerBookings(): List<OwnerBooking> {
+        val me = supabase.auth.currentUserOrNull()?.id ?: return emptyList()
+        return supabase.from("bookings")
+            .select(Columns.raw("*, equipment(name)")) {
+                filter { eq("owner_id", me) }
+                order("start_at", Order.DESCENDING)
+            }
+            .decodeList<BookingWithEquipment>()
+            .map { OwnerBooking(it.toBooking(), it.equipment.name) }
+    }
+
     suspend fun countOwnerRequests(): Int {
         val me = supabase.auth.currentUserOrNull()?.id ?: return 0
         return supabase.from("bookings")

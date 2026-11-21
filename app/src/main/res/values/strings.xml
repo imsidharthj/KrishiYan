@@ -182,6 +182,23 @@
     <string name="cancel_booking_title">Cancel this booking?</string>
     <string name="cancel_booking_text">The owner of %1$s will see that you cancelled.</string>
 
+    <string name="edit_equipment">Edit equipment</string>
+    <string name="save_changes">Save changes</string>
+    <string name="changes_saved">Changes saved</string>
+    <string name="count_listed">Listed equipment</string>
+    <string name="count_requests">Pending requests</string>
+    <string name="count_upcoming">Upcoming rentals</string>
+    <string name="count_active">Active rentals</string>
+    <string name="my_equipment">My equipment</string>
+    <string name="no_equipment_yet">You have not listed any equipment yet</string>
+    <string name="listed">Listed</string>
+    <string name="hidden_from_search">Hidden from search</string>
+    <string name="edit">Edit</string>
+    <string name="mark_unavailable">Mark unavailable</string>
+    <string name="mark_available">Mark available</string>
+    <string name="rental_history">Rental history</string>
+    <string name="no_history_yet">No past rentals on your equipment yet</string>
+
     <string name="error_photo_required">Add at least one photo</string>
     <string name="error_equipment_name_required">Enter a name</string>
     <string name="error_category_required">Choose a type</string>

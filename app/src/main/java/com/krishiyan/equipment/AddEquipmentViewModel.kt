@@ -22,6 +22,8 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 data class AddEquipmentUiState(
+    val editing: Boolean = false,
+    val loadingExisting: Boolean = false,
     val photos: List<Uri> = emptyList(),
     val name: String = "",
     val category: Category? = null,
@@ -44,9 +46,39 @@ class AddEquipmentViewModel(
     private val app: Application,
     private val equipment: EquipmentRepository,
     private val locationProvider: LocationProvider,
+    private val editingId: String? = null,
 ) : ViewModel() {
-    private val _state = MutableStateFlow(AddEquipmentUiState())
+    private val _state = MutableStateFlow(AddEquipmentUiState(editing = editingId != null, loadingExisting = editingId != null))
     val state: StateFlow<AddEquipmentUiState> = _state
+
+    init {
+        if (editingId != null) loadExisting(editingId)
+    }
+
+    private fun loadExisting(id: String) {
+        viewModelScope.launch {
+            try {
+                val (e, blocked) = equipment.getMyEquipment(id) ?: error("Equipment not found")
+                _state.update {
+                    it.copy(
+                        loadingExisting = false,
+                        name = e.name,
+                        category = e.category,
+                        brandModel = e.brandModel,
+                        description = e.description,
+                        year = e.year?.toString().orEmpty(),
+                        price = e.price.toBigDecimal().stripTrailingZeros().toPlainString(),
+                        priceUnit = e.priceUnit,
+                        location = LatLng(e.lat, e.lng),
+                        availableNow = blocked.isEmpty(),
+                        blocked = blocked,
+                    )
+                }
+            } catch (e: Exception) {
+                _state.update { it.copy(loadingExisting = false, error = e.toMessage()) }
+            }
+        }
+    }
 
     fun addPhotos(uris: List<Uri>) = _state.update { it.copy(photos = (it.photos + uris).distinct().take(MAX_PHOTOS), error = null) }
     fun removePhoto(uri: Uri) = _state.update { it.copy(photos = it.photos - uri) }
@@ -85,12 +117,13 @@ class AddEquipmentViewModel(
 
     fun removeBlocked(range: BlockedRange) = _state.update { it.copy(blocked = it.blocked - range) }
 
-    fun publishEquipment() {
+    /** Checks the form and builds the listing, or shows the first problem and returns null. */
+    private fun validEquipment(needPhotos: Boolean): NewEquipment? {
         val s = _state.value
         val price = s.price.toDoubleOrNull()
         val year = s.year.toIntOrNull()
         val error = when {
-            s.photos.isEmpty() -> R.string.error_photo_required
+            needPhotos && s.photos.isEmpty() -> R.string.error_photo_required
             s.name.isBlank() -> R.string.error_equipment_name_required
             s.category == null -> R.string.error_category_required
             price == null || price <= 0 -> R.string.error_price_required
@@ -101,9 +134,9 @@ class AddEquipmentViewModel(
         }
         if (error != null) {
             _state.update { it.copy(error = error) }
-            return
+            return null
         }
-        val newEquipment = NewEquipment(
+        return NewEquipment(
             name = s.name.trim(),
             category = s.category!!,
             brandModel = s.brandModel.trim(),
@@ -114,11 +147,31 @@ class AddEquipmentViewModel(
             lat = s.location!!.lat,
             lng = s.location.lng,
         )
+    }
+
+    fun publishEquipment() {
+        val newEquipment = validEquipment(needPhotos = true) ?: return
+        val s = _state.value
         _state.update { it.copy(publishing = true, error = null) }
         viewModelScope.launch {
             try {
                 val photos = withContext(Dispatchers.Default) { s.photos.map { compressPhoto(app, it) } }
                 equipment.publishEquipment(newEquipment, photos, if (s.availableNow) emptyList() else s.blocked)
+                _state.update { it.copy(publishing = false, published = true) }
+            } catch (e: Exception) {
+                _state.update { it.copy(publishing = false, error = e.toMessage()) }
+            }
+        }
+    }
+
+    fun saveEquipmentChanges() {
+        val id = editingId ?: return
+        val changed = validEquipment(needPhotos = false) ?: return
+        val s = _state.value
+        _state.update { it.copy(publishing = true, error = null) }
+        viewModelScope.launch {
+            try {
+                equipment.updateEquipment(id, changed, if (s.availableNow) emptyList() else s.blocked)
                 _state.update { it.copy(publishing = false, published = true) }
             } catch (e: Exception) {
                 _state.update { it.copy(publishing = false, error = e.toMessage()) }

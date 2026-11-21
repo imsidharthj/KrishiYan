@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.PhotoLibrary
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -97,7 +98,7 @@ fun AddEquipmentScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.add_equipment)) },
+                title = { Text(stringResource(if (state.editing) R.string.edit_equipment else R.string.add_equipment)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
@@ -115,7 +116,11 @@ fun AddEquipmentScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp),
         ) {
-            PhotosSection(state.photos, viewModel::addPhotos, viewModel::removePhoto)
+            if (state.loadingExisting) {
+                CircularProgressIndicator(Modifier.align(Alignment.CenterHorizontally))
+                return@Column
+            }
+            if (!state.editing) PhotosSection(state.photos, viewModel::addPhotos, viewModel::removePhoto)
             DetailsSection(state, viewModel)
             PriceSection(state, viewModel)
             LocationSection(state, viewModel, placeSearch)
@@ -124,7 +129,11 @@ fun AddEquipmentScreen(
             state.error?.let {
                 Text(stringResource(it), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodyLarge)
             }
-            BigButton(stringResource(R.string.publish), viewModel::publishEquipment, loading = state.publishing)
+            if (state.editing) {
+                BigButton(stringResource(R.string.save_changes), viewModel::saveEquipmentChanges, loading = state.publishing)
+            } else {
+                BigButton(stringResource(R.string.publish), viewModel::publishEquipment, loading = state.publishing)
+            }
         }
     }
 }

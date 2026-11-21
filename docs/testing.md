@@ -93,3 +93,13 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] During the rental it shows under Active; after the end under Past.
 - [ ] Cancel booking asks to confirm and moves it to Past as Cancelled. Not offered once an accepted rental has started.
 - [ ] Pull down reloads; opening the tab reloads.
+
+### Profile and owner dashboard
+- [ ] Profile shows name, village and phone.
+- [ ] Counts: listed equipment, pending requests, upcoming rentals, active rentals. Tapping pending requests opens Booking requests.
+- [ ] Add equipment opens the form.
+- [ ] My equipment lists each listing with photo, price and Listed or Hidden from search.
+- [ ] Mark unavailable hides it from Home and Map; Mark available shows it again.
+- [ ] Edit opens the form filled with saved details (no photo section). Save changes shows "Changes saved" and the new details show on the listing.
+- [ ] Rental history lists finished, rejected and cancelled bookings on my equipment.
+- [ ] Log out returns to login.

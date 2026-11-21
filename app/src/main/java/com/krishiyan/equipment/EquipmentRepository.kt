@@ -3,6 +3,7 @@ package com.krishiyan.equipment
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.storage.storage
@@ -43,6 +44,76 @@ class EquipmentRepository(private val supabase: SupabaseClient) {
         }
         return id
     }
+
+    /** My listings, newest first, with the first photo. Owners can read their own rows directly. */
+    suspend fun listMyEquipment(): List<MyEquipment> {
+        val me = supabase.auth.currentUserOrNull()?.id ?: return emptyList()
+        val rows = supabase.from("equipment")
+            .select(Columns.raw("id, name, price, price_unit, is_available, equipment_images(storage_path, position)")) {
+                filter { eq("owner_id", me) }
+                order("created_at", Order.DESCENDING)
+            }
+            .decodeList<MyEquipmentRow>()
+        val firstPaths = rows.mapNotNull { row -> row.images.minByOrNull { it.position }?.storagePath }
+        val urls = signedPhotoUrls(firstPaths)
+        return rows.map { row ->
+            MyEquipment(
+                id = row.id,
+                name = row.name,
+                price = row.price,
+                priceUnit = row.priceUnit,
+                isAvailable = row.isAvailable,
+                photoUrl = row.images.minByOrNull { it.position }?.storagePath?.let(urls::get),
+            )
+        }
+    }
+
+    /** One of my listings with everything the edit form needs, including the exact location. */
+    suspend fun getMyEquipment(id: String): Pair<NewEquipment, List<BlockedRange>>? {
+        val row = supabase.from("equipment")
+            .select { filter { eq("id", id) } }
+            .decodeSingleOrNull<EquipmentRow>() ?: return null
+        val blocked = supabase.from("equipment_blocked_dates")
+            .select { filter { eq("equipment_id", id) } }
+            .decodeList<BlockedRow>()
+            .map { BlockedRange(Instant.parse(it.startAt), Instant.parse(it.endAt)) }
+        return row.toNewEquipment() to blocked
+    }
+
+    /** Saves edited details and replaces the unavailable days. Photos are left as they are. */
+    suspend fun updateEquipment(id: String, equipment: NewEquipment, blocked: List<BlockedRange>) {
+        val ownerId = requireNotNull(supabase.auth.currentUserOrNull()?.id)
+        supabase.from("equipment").update(EquipmentRow.from(ownerId, equipment)) { filter { eq("id", id) } }
+        supabase.from("equipment_blocked_dates").delete { filter { eq("equipment_id", id) } }
+        if (blocked.isNotEmpty()) {
+            supabase.from("equipment_blocked_dates")
+                .insert(blocked.map { BlockedRow(id, it.start.toString(), it.end.toString()) })
+        }
+    }
+
+    suspend fun markEquipmentUnavailable(id: String) = setAvailable(id, false)
+
+    suspend fun markEquipmentAvailable(id: String) = setAvailable(id, true)
+
+    private suspend fun setAvailable(id: String, available: Boolean) {
+        supabase.from("equipment").update(AvailableRow(available)) { filter { eq("id", id) } }
+    }
+
+    @Serializable
+    private data class AvailableRow(@SerialName("is_available") val isAvailable: Boolean)
+
+    @Serializable
+    private data class MyEquipmentRow(
+        val id: String,
+        val name: String,
+        val price: Double,
+        @SerialName("price_unit") val priceUnit: String,
+        @SerialName("is_available") val isAvailable: Boolean,
+        @SerialName("equipment_images") val images: List<ImageRef> = emptyList(),
+    )
+
+    @Serializable
+    private data class ImageRef(@SerialName("storage_path") val storagePath: String, val position: Int)
 
     suspend fun listNearbyEquipment(
         lat: Double,
@@ -114,6 +185,11 @@ class EquipmentRepository(private val supabase: SupabaseClient) {
         val lat: Double,
         val lng: Double,
     ) {
+        fun toNewEquipment() = NewEquipment(
+            name, Category.fromDb(category), brandModel, description, year, price,
+            if (priceUnit == PriceUnit.Hour.dbValue) PriceUnit.Hour else PriceUnit.Day, lat, lng,
+        )
+
         companion object {
             fun from(ownerId: String, e: NewEquipment) = EquipmentRow(
                 ownerId, e.name, e.category.dbValue, e.brandModel, e.description,

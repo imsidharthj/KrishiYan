@@ -3,13 +3,7 @@ package com.krishiyan.navigation
 import android.app.Application
 import android.widget.Toast
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Agriculture
@@ -21,18 +15,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -56,10 +46,8 @@ import com.krishiyan.equipment.EquipmentDetailsViewModel
 import com.krishiyan.home.HomeScreen
 import com.krishiyan.home.HomeViewModel
 import com.krishiyan.map.MapScreen
+import com.krishiyan.profile.ProfileScreen
 import com.krishiyan.profile.ProfileViewModel
-import com.krishiyan.ui.components.BigButton
-import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.serialization.Serializable
 
 @Serializable object HomeRoute
@@ -67,6 +55,7 @@ import kotlinx.serialization.Serializable
 @Serializable object MyRentalsRoute
 @Serializable object ProfileRoute
 @Serializable object AddEquipmentRoute
+@Serializable data class EditEquipmentRoute(val id: String)
 @Serializable data class EquipmentDetailsRoute(val id: String)
 @Serializable data class RequestBookingRoute(val equipmentId: String)
 @Serializable object OwnerRequestsRoute
@@ -143,16 +132,13 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                 MyRentalsScreen(viewModel { MyRentalsViewModel(container.bookingRepository) })
             }
             composable<ProfileRoute> {
-                val profile = viewModel { ProfileViewModel(container.bookingRepository) }
-                val profileState by profile.state.collectAsStateWithLifecycle()
-                LifecycleResumeEffect(Unit) {
-                    profile.refresh()
-                    onPauseOrDispose { }
-                }
-                ProfilePlaceholder(
-                    pendingRequests = profileState.pendingRequests,
-                    onOpenRequests = { navController.navigate(OwnerRequestsRoute) },
+                ProfileScreen(
+                    viewModel = viewModel {
+                        ProfileViewModel(container.profileRepository, container.equipmentRepository, container.bookingRepository)
+                    },
                     onAddEquipment = { navController.navigate(AddEquipmentRoute) },
+                    onOpenRequests = { navController.navigate(OwnerRequestsRoute) },
+                    onEditEquipment = { navController.navigate(EditEquipmentRoute(it)) },
                     onSignOut = onSignOut,
                 )
             }
@@ -186,6 +172,26 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                     onBack = { navController.popBackStack() },
                 )
             }
+            composable<EditEquipmentRoute> { entry ->
+                val id = entry.toRoute<EditEquipmentRoute>().id
+                val context = LocalContext.current
+                AddEquipmentScreen(
+                    viewModel = viewModel {
+                        AddEquipmentViewModel(
+                            context.applicationContext as Application,
+                            container.equipmentRepository,
+                            container.locationProvider,
+                            editingId = id,
+                        )
+                    },
+                    placeSearch = container.placeSearch,
+                    onBack = { navController.popBackStack() },
+                    onPublished = {
+                        Toast.makeText(context, R.string.changes_saved, Toast.LENGTH_LONG).show()
+                        navController.popBackStack()
+                    },
+                )
+            }
             composable<AddEquipmentRoute> {
                 val context = LocalContext.current
                 AddEquipmentScreen(
@@ -204,37 +210,6 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                     },
                 )
             }
-        }
-    }
-}
-
-@Composable
-private fun ProfilePlaceholder(
-    pendingRequests: Int,
-    onOpenRequests: () -> Unit,
-    onAddEquipment: () -> Unit,
-    onSignOut: () -> Unit,
-) {
-    Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
-    ) {
-        Text(
-            text = "${stringResource(R.string.tab_profile)}\n${stringResource(R.string.coming_soon)}",
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth(),
-        )
-        OutlinedButton(onClick = onOpenRequests, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-            Text(
-                if (pendingRequests > 0) stringResource(R.string.booking_requests_count, pendingRequests)
-                else stringResource(R.string.booking_requests),
-                style = MaterialTheme.typography.labelLarge,
-            )
-        }
-        BigButton(stringResource(R.string.add_equipment), onAddEquipment)
-        OutlinedButton(onClick = onSignOut, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
-            Text(stringResource(R.string.log_out), style = MaterialTheme.typography.labelLarge)
         }
     }
 }

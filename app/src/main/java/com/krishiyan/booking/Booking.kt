@@ -57,3 +57,6 @@ data class BookingContact(
     @SerialName("owner_name") val ownerName: String,
     @SerialName("owner_phone") val ownerPhone: String,
 )
+
+/** A booking on my equipment, as the owner sees it. */
+data class OwnerBooking(val booking: Booking, val equipmentName: String)
