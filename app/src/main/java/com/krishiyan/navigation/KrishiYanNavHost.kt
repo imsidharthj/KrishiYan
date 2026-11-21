@@ -46,6 +46,7 @@ import com.krishiyan.equipment.AddEquipmentScreen
 import com.krishiyan.equipment.AddEquipmentViewModel
 import com.krishiyan.home.HomeScreen
 import com.krishiyan.home.HomeViewModel
+import com.krishiyan.map.MapScreen
 import com.krishiyan.ui.components.BigButton
 import kotlinx.serialization.Serializable
 
@@ -71,6 +72,18 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
     val destination = backStack?.destination
 
     val onTab = tabs.any { destination?.hasRoute(it.route::class) == true }
+    val container = (LocalContext.current.applicationContext as KrishiYanApp).container
+    // Home and Map show the same search, so they share one ViewModel.
+    val discover = viewModel {
+        HomeViewModel(container.equipmentRepository, container.locationProvider, container.savedLocation, container.placeSearch)
+    }
+    val goToTab = { route: Any ->
+        navController.navigate(route) {
+            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
 
     Scaffold(
         contentWindowInsets = WindowInsets(0),
@@ -79,13 +92,7 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                 tabs.forEach { tab ->
                     NavigationBarItem(
                         selected = destination?.hasRoute(tab.route::class) == true,
-                        onClick = {
-                            navController.navigate(tab.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
+                        onClick = { goToTab(tab.route) },
                         icon = { Icon(tab.icon, contentDescription = null) },
                         label = { Text(stringResource(tab.label)) },
                         colors = NavigationBarItemDefaults.colors(
@@ -104,23 +111,17 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
             modifier = Modifier.padding(padding),
         ) {
             composable<HomeRoute> {
-                val container = (LocalContext.current.applicationContext as KrishiYanApp).container
-                HomeScreen(
-                    viewModel = viewModel {
-                        HomeViewModel(container.equipmentRepository, container.locationProvider, container.savedLocation)
-                    },
-                    placeSearch = container.placeSearch,
-                    onOpenEquipment = { },
-                )
+                HomeScreen(viewModel = discover, placeSearch = container.placeSearch, onOpenEquipment = { })
             }
-            composable<MapRoute> { PlaceholderScreen(R.string.tab_map) }
+            composable<MapRoute> {
+                MapScreen(viewModel = discover, onOpenEquipment = { }, onChooseLocation = { goToTab(HomeRoute) })
+            }
             composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
             composable<ProfileRoute> {
                 ProfilePlaceholder(onAddEquipment = { navController.navigate(AddEquipmentRoute) }, onSignOut = onSignOut)
             }
             composable<AddEquipmentRoute> {
                 val context = LocalContext.current
-                val container = (context.applicationContext as KrishiYanApp).container
                 AddEquipmentScreen(
                     viewModel = viewModel {
                         AddEquipmentViewModel(
@@ -129,6 +130,7 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
                             container.locationProvider,
                         )
                     },
+                    placeSearch = container.placeSearch,
                     onBack = { navController.popBackStack() },
                     onPublished = {
                         Toast.makeText(context, R.string.equipment_published, Toast.LENGTH_LONG).show()

@@ -10,6 +10,7 @@ import com.krishiyan.equipment.NearbyEquipment
 import com.krishiyan.location.LatLng
 import com.krishiyan.location.LocationProvider
 import com.krishiyan.location.Place
+import com.krishiyan.location.PlaceSearch
 import com.krishiyan.location.SavedLocation
 import com.krishiyan.ui.components.toMessage
 import kotlinx.coroutines.Job
@@ -30,7 +31,9 @@ data class HomeUiState(
     val loading: Boolean = false,
     val loaded: Boolean = false,
     @StringRes val error: Int? = null,
-)
+) {
+    val hasFilters: Boolean get() = query.isNotBlank() || category != null || radiusKm != DEFAULT_RADIUS_KM
+}
 
 val RADIUS_OPTIONS_KM = listOf(5, 10, 25, 50)
 const val DEFAULT_RADIUS_KM = 25
@@ -39,6 +42,7 @@ class HomeViewModel(
     private val equipment: EquipmentRepository,
     private val locationProvider: LocationProvider,
     private val savedLocation: SavedLocation,
+    private val placeSearch: PlaceSearch,
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeUiState(location = savedLocation.load(), placeName = savedLocation.loadName()))
     val state: StateFlow<HomeUiState> = _state
@@ -66,12 +70,12 @@ class HomeViewModel(
         refresh()
     }
 
-    /** From GPS or the map pin, where we have no name yet, so we look one up. */
+    /** From GPS, where we have no name yet, so we look one up. */
     fun onLocationChosen(location: LatLng) {
         savedLocation.save(location, null)
         _state.update { it.copy(location = location, placeName = null, error = null) }
         viewModelScope.launch {
-            val name = savedLocation.placeName(location)
+            val name = try { placeSearch.placeAt(location)?.name } catch (e: Exception) { null }
             if (_state.value.location == location) {
                 savedLocation.save(location, name)
                 _state.update { it.copy(placeName = name) }
@@ -96,6 +100,11 @@ class HomeViewModel(
 
     fun onRadiusChange(radiusKm: Int) {
         _state.update { it.copy(radiusKm = radiusKm) }
+        refresh()
+    }
+
+    fun clearFilters() {
+        _state.update { it.copy(query = "", category = null, radiusKm = DEFAULT_RADIUS_KM) }
         refresh()
     }
 

@@ -56,6 +56,9 @@
     <string name="finding_location">Finding your location…</string>
     <string name="pick_location_hint">Move the map so the pin is on the equipment</string>
     <string name="pick_location_confirm">Use this place</string>
+    <string name="finding_address">Finding address…</string>
+    <string name="address_unknown">Address not found. You can still use this place</string>
+    <string name="pinned_place">Pinned place</string>
     <string name="availability">Availability</string>
     <string name="available_now">Available now</string>
     <string name="not_available_some_days">Not available on some days</string>
@@ -84,11 +87,18 @@
     <string name="search_hint">Search tractor, sprayer…</string>
     <string name="all">All</string>
     <string name="within">Within</string>
+    <string name="within_km">within %1$d km</string>
+    <string name="filtered_by">Showing: %1$s</string>
+    <string name="clear">Clear</string>
     <string name="km">%1$d km</string>
     <string name="km_away">%1$d km away</string>
     <string name="price_per_hour_value">%1$s / hour</string>
     <string name="price_per_day_value">%1$s / day</string>
     <string name="busy_now">Busy now</string>
+    <string name="osm_credit">© OpenStreetMap contributors</string>
+    <string name="map_needs_location">Choose your place first to see equipment on the map</string>
+    <string name="choose_location">Choose place</string>
+    <string name="map_showing">Near %1$s, within %2$d km</string>
     <string name="no_equipment_nearby">No equipment near you yet</string>
     <string name="no_equipment_nearby_hint">Try a bigger distance</string>
 

@@ -22,6 +22,18 @@ class PlaceSearch(private val http: HttpClient) {
         return json.decodeFromString<Response>(body).features.mapNotNull { it.toPlace() }.distinct()
     }
 
+    /** The address at a point, for example after the user drops a pin. Null when nothing is known there. */
+    suspend fun placeAt(location: LatLng): Place? {
+        val body = http.get(PHOTON_REVERSE_URL) {
+            parameter("lat", location.lat)
+            parameter("lon", location.lng)
+        }.bodyAsText()
+        val p = json.decodeFromString<Response>(body).features.firstOrNull()?.properties ?: return null
+        val name = p.locality ?: p.district ?: p.name ?: p.city ?: p.county ?: return null
+        val detail = listOfNotNull(p.city ?: p.county, p.state).filter { it != name }.distinct().joinToString(", ")
+        return Place(name, detail, location)
+    }
+
     @Serializable
     private data class Response(val features: List<Feature> = emptyList())
 
@@ -47,11 +59,13 @@ class PlaceSearch(private val http: HttpClient) {
         val city: String? = null,
         val county: String? = null,
         val district: String? = null,
+        val locality: String? = null,
         val state: String? = null,
     )
 
     private companion object {
         const val PHOTON_URL = "https://photon.komoot.io/api/"
+        const val PHOTON_REVERSE_URL = "https://photon.komoot.io/reverse"
         const val INDIA_BBOX = "68.1,6.5,97.4,35.7"
     }
 }

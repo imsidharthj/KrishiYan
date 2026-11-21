@@ -50,3 +50,11 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Pull down reloads.
 - [ ] Airplane mode shows "No internet. Try again"; Try again works once back online.
 - [ ] Reopening the app keeps the last place.
+
+### Map
+- [ ] Map tab shows the place, search box, type chips and distance chips at the top.
+- [ ] Green pins show listings; the blue dot is the chosen place.
+- [ ] Tapping a pin shows its card; tapping empty map hides it.
+- [ ] Type, search and distance change the pins. Home then shows "Showing: ..." with Clear.
+- [ ] "© OpenStreetMap contributors" shows on the Map tab and the pin picker.
+- [ ] Searching a place opens the pin picker at that place; moving the map updates the address under the pin.

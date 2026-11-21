@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.krishiyan.R
 import com.krishiyan.location.LatLng
 import com.krishiyan.location.LocationProvider
+import com.krishiyan.location.Place
 import com.krishiyan.ui.components.toMessage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,6 +31,7 @@ data class AddEquipmentUiState(
     val price: String = "",
     val priceUnit: PriceUnit = PriceUnit.Day,
     val location: LatLng? = null,
+    val locationName: String? = null,
     val findingLocation: Boolean = false,
     val availableNow: Boolean = true,
     val blocked: List<BlockedRange> = emptyList(),
@@ -55,7 +57,8 @@ class AddEquipmentViewModel(
     fun onYearChange(v: String) = _state.update { it.copy(year = v.filter(Char::isDigit).take(4)) }
     fun onPriceChange(v: String) = _state.update { it.copy(price = v.filter { c -> c.isDigit() || c == '.' }.take(8), error = null) }
     fun onPriceUnitChange(v: PriceUnit) = _state.update { it.copy(priceUnit = v) }
-    fun onLocationPicked(v: LatLng) = _state.update { it.copy(location = v, error = null) }
+    fun onLocationPicked(place: Place) =
+        _state.update { it.copy(location = place.location, locationName = place.name, error = null) }
     fun onAvailableNowChange(v: Boolean) = _state.update { it.copy(availableNow = v) }
 
     fun useCurrentLocation() {
@@ -63,7 +66,7 @@ class AddEquipmentViewModel(
         viewModelScope.launch {
             val location = try { locationProvider.currentLocation() } catch (e: Exception) { null }
             _state.update {
-                if (location != null) it.copy(findingLocation = false, location = location)
+                if (location != null) it.copy(findingLocation = false, location = location, locationName = null)
                 else it.copy(findingLocation = false, error = R.string.error_location_unavailable)
             }
         }

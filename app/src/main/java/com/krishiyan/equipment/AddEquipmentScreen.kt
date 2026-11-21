@@ -76,6 +76,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.krishiyan.R
 import com.krishiyan.location.LocationPickerDialog
+import com.krishiyan.location.PlaceSearch
 import com.krishiyan.ui.components.BigButton
 import java.io.File
 import java.time.ZoneId
@@ -84,7 +85,12 @@ import java.time.format.FormatStyle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddEquipmentScreen(viewModel: AddEquipmentViewModel, onBack: () -> Unit, onPublished: () -> Unit) {
+fun AddEquipmentScreen(
+    viewModel: AddEquipmentViewModel,
+    placeSearch: PlaceSearch,
+    onBack: () -> Unit,
+    onPublished: () -> Unit,
+) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     LaunchedEffect(state.published) { if (state.published) onPublished() }
 
@@ -112,7 +118,7 @@ fun AddEquipmentScreen(viewModel: AddEquipmentViewModel, onBack: () -> Unit, onP
             PhotosSection(state.photos, viewModel::addPhotos, viewModel::removePhoto)
             DetailsSection(state, viewModel)
             PriceSection(state, viewModel)
-            LocationSection(state, viewModel)
+            LocationSection(state, viewModel, placeSearch)
             AvailabilitySection(state, viewModel)
 
             state.error?.let {
@@ -281,7 +287,7 @@ private fun PriceSection(state: AddEquipmentUiState, viewModel: AddEquipmentView
 }
 
 @Composable
-private fun LocationSection(state: AddEquipmentUiState, viewModel: AddEquipmentViewModel) {
+private fun LocationSection(state: AddEquipmentUiState, viewModel: AddEquipmentViewModel, placeSearch: PlaceSearch) {
     var showPicker by remember { mutableStateOf(false) }
     val permission = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { result ->
         if (result.values.any { it }) viewModel.useCurrentLocation() else viewModel.onLocationDenied()
@@ -294,7 +300,7 @@ private fun LocationSection(state: AddEquipmentUiState, viewModel: AddEquipmentV
         if (state.location != null) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                Text(stringResource(R.string.location_set), style = MaterialTheme.typography.bodyLarge)
+                Text(state.locationName ?: stringResource(R.string.location_set), style = MaterialTheme.typography.bodyLarge)
             }
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -312,6 +318,7 @@ private fun LocationSection(state: AddEquipmentUiState, viewModel: AddEquipmentV
     if (showPicker) {
         LocationPickerDialog(
             start = state.location,
+            placeSearch = placeSearch,
             onPicked = { viewModel.onLocationPicked(it); showPicker = false },
             onDismiss = { showPicker = false },
         )
