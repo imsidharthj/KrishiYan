@@ -1,8 +1,11 @@
 package com.krishiyan.navigation
 
+import android.app.Application
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -35,13 +39,19 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.krishiyan.KrishiYanApp
 import com.krishiyan.R
+import com.krishiyan.equipment.AddEquipmentScreen
+import com.krishiyan.equipment.AddEquipmentViewModel
+import com.krishiyan.ui.components.BigButton
 import kotlinx.serialization.Serializable
 
 @Serializable object HomeRoute
 @Serializable object MapRoute
 @Serializable object MyRentalsRoute
 @Serializable object ProfileRoute
+@Serializable object AddEquipmentRoute
 
 private data class Tab(val route: Any, @StringRes val label: Int, val icon: ImageVector)
 
@@ -58,9 +68,12 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
     val backStack by navController.currentBackStackEntryAsState()
     val destination = backStack?.destination
 
+    val onTab = tabs.any { destination?.hasRoute(it.route::class) == true }
+
     Scaffold(
+        contentWindowInsets = WindowInsets(0),
         bottomBar = {
-            NavigationBar {
+            if (onTab) NavigationBar {
                 tabs.forEach { tab ->
                     NavigationBarItem(
                         selected = destination?.hasRoute(tab.route::class) == true,
@@ -91,7 +104,27 @@ fun KrishiYanNavHost(onSignOut: () -> Unit) {
             composable<HomeRoute> { PlaceholderScreen(R.string.tab_home) }
             composable<MapRoute> { PlaceholderScreen(R.string.tab_map) }
             composable<MyRentalsRoute> { PlaceholderScreen(R.string.tab_my_rentals) }
-            composable<ProfileRoute> { ProfilePlaceholder(onSignOut) }
+            composable<ProfileRoute> {
+                ProfilePlaceholder(onAddEquipment = { navController.navigate(AddEquipmentRoute) }, onSignOut = onSignOut)
+            }
+            composable<AddEquipmentRoute> {
+                val context = LocalContext.current
+                val container = (context.applicationContext as KrishiYanApp).container
+                AddEquipmentScreen(
+                    viewModel = viewModel {
+                        AddEquipmentViewModel(
+                            context.applicationContext as Application,
+                            container.equipmentRepository,
+                            container.locationProvider,
+                        )
+                    },
+                    onBack = { navController.popBackStack() },
+                    onPublished = {
+                        Toast.makeText(context, R.string.equipment_published, Toast.LENGTH_LONG).show()
+                        navController.popBackStack()
+                    },
+                )
+            }
         }
     }
 }
@@ -108,7 +141,7 @@ private fun PlaceholderScreen(@StringRes title: Int) {
 }
 
 @Composable
-private fun ProfilePlaceholder(onSignOut: () -> Unit) {
+private fun ProfilePlaceholder(onAddEquipment: () -> Unit, onSignOut: () -> Unit) {
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(24.dp, Alignment.CenterVertically),
@@ -119,6 +152,7 @@ private fun ProfilePlaceholder(onSignOut: () -> Unit) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),
         )
+        BigButton(stringResource(R.string.add_equipment), onAddEquipment)
         OutlinedButton(onClick = onSignOut, modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp)) {
             Text(stringResource(R.string.log_out), style = MaterialTheme.typography.labelLarge)
         }

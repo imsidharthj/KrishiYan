@@ -27,3 +27,13 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Force close and reopen: goes straight to Home.
 - [ ] Profile > Log out returns to login. Logging in again skips "About you".
 - [ ] Airplane mode on Send code shows "No internet. Try again".
+
+### Add equipment
+- [ ] Profile > Add equipment opens the form.
+- [ ] Publish with nothing filled shows "Add at least one photo".
+- [ ] Gallery adds photos (max 5); the cross removes one. Camera adds a photo.
+- [ ] My location asks for permission, then shows "Location set".
+- [ ] Pick on map loads the map; Use this place shows "Location set".
+- [ ] Not available on some days: adding a date range shows a chip; tapping it removes it.
+- [ ] Publish shows "Equipment published" and returns to Profile.
+- [ ] Supabase has the row in equipment, its photos in equipment_images and Storage, and blocked dates if added.

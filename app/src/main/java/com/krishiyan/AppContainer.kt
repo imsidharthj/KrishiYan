@@ -1,6 +1,9 @@
 package com.krishiyan
 
+import android.content.Context
 import com.krishiyan.auth.AuthRepository
+import com.krishiyan.equipment.EquipmentRepository
+import com.krishiyan.location.LocationProvider
 import com.krishiyan.profile.ProfileRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.Auth
@@ -8,7 +11,7 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.storage.Storage
 
-class AppContainer {
+class AppContainer(context: Context) {
     val supabase: SupabaseClient = createSupabaseClient(
         supabaseUrl = BuildConfig.SUPABASE_URL,
         supabaseKey = BuildConfig.SUPABASE_KEY,
@@ -20,4 +23,6 @@ class AppContainer {
 
     val authRepository = AuthRepository(supabase)
     val profileRepository = ProfileRepository(supabase)
+    val equipmentRepository = EquipmentRepository(supabase)
+    val locationProvider = LocationProvider(context)
 }

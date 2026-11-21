@@ -59,6 +59,11 @@ dependencies {
     implementation(libs.supabase.postgrest)
     implementation(libs.supabase.storage)
     implementation(libs.ktor.client.android)
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
+    implementation(libs.osmdroid)
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.ktor)
     debugImplementation(libs.androidx.compose.ui.tooling)
 
     testImplementation(libs.junit)

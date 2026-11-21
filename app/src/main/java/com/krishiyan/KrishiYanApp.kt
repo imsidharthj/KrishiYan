@@ -1,6 +1,7 @@
 package com.krishiyan
 
 import android.app.Application
+import org.osmdroid.config.Configuration
 
 class KrishiYanApp : Application() {
     lateinit var container: AppContainer
@@ -8,6 +9,7 @@ class KrishiYanApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        container = AppContainer()
+        Configuration.getInstance().userAgentValue = packageName
+        container = AppContainer(this)
     }
 }
