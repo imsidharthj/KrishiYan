@@ -103,3 +103,16 @@ Run on a real phone before calling a step done. Each line is pass or fail.
 - [ ] Edit opens the form filled with saved details (no photo section). Save changes shows "Changes saved" and the new details show on the listing.
 - [ ] Rental history lists finished, rejected and cancelled bookings on my equipment.
 - [ ] Log out returns to login.
+
+## Backend end-to-end test
+
+`supabase/tests/e2e.py` runs the whole owner and renter journey against the real Supabase project using the app's public key, as two separate users, and checks the access rules (exact location and phone stay private until acceptance, no double booking, nobody can act for someone else). It cleans up after itself.
+
+Setup once: in Supabase, Authentication > Users > Add user, with Auto Confirm on:
+`tester.owner@krishiyan.test` and `tester.renter@krishiyan.test`, password `KrishiTest-2026!`.
+
+Run from the repo root after any database change:
+
+```
+python3 supabase/tests/e2e.py
+```
