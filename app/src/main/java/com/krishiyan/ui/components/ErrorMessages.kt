@@ -1,5 +1,6 @@
 package com.krishiyan.ui.components
 
+import android.util.Log
 import androidx.annotation.StringRes
 import com.krishiyan.R
 import io.github.jan.supabase.auth.exception.AuthRestException
@@ -8,6 +9,7 @@ import io.github.jan.supabase.exceptions.RestException
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import java.io.IOException
 
+/** Maps an error to a message for the user. Errors we do not recognise are logged so they can be fixed. */
 @StringRes
 fun Throwable.toMessage(): Int = when (this) {
     is HttpRequestException, is IOException, is ConnectTimeoutException -> R.string.error_no_internet
@@ -19,7 +21,9 @@ fun Throwable.toMessage(): Int = when (this) {
     is AuthRestException -> when {
         statusCode == 429 -> R.string.error_too_many_tries
         error.contains("otp", ignoreCase = true) || statusCode == 403 -> R.string.error_wrong_code
-        else -> R.string.error_generic
+        else -> R.string.error_generic.also { Log.w(TAG, "Unexpected auth error", this) }
     }
-    else -> R.string.error_generic
+    else -> R.string.error_generic.also { Log.w(TAG, "Unexpected error", this) }
 }
+
+private const val TAG = "KrishiYan"
