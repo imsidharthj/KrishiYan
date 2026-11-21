@@ -9,3 +9,8 @@ Built with Kotlin, Jetpack Compose and Supabase.
 - [Code rules](docs/code-rules.md)
 - [Build, run and release](docs/build.md)
 - [Testing](docs/testing.md)
+
+## Credits
+
+- App icon tractor: image supplied by the project owner.
+- Maps: © OpenStreetMap contributors. Place search: [Photon](https://photon.komoot.io).
